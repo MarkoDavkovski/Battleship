@@ -20,9 +20,18 @@ const Gameboard = () => {
 		return board;
 	}
 
-	function checkValidSpace(ship, [x, y]) {}
+	function attack(x, y) {
+		if (board[x][y] !== '0') {
+			return true;
+		} else return false;
+	}
 
-	return { getBoard, setBoard, checkValidSpace };
+	function checkValidSpace(ship, [x, y]) {
+		if (x <= 9 && x >= 0 && y + ship.length <= 9) return true;
+		return false;
+	}
+
+	return { getBoard, setBoard, attack, checkValidSpace };
 };
 
 const Ship = (length) => {
@@ -31,8 +40,7 @@ const Ship = (length) => {
 		hits++;
 	}
 	function isSunk() {
-		if (hits === length) return true;
-		else return false;
+		return hits === length;
 	}
 	return { length, isSunk, hits };
 };
@@ -44,6 +52,19 @@ const Player = () => {
 		ships.push(Ship(i));
 	}
 
+	let isPlayer1Turn = true;
+
+	function attack(x, y) {
+		if (isPlayer1Turn) {
+			const result = player2.gameboard.attack(x, y);
+			isPlayer1Turn = !result;
+			return result;
+		}
+		const result = player1.gameboard.attack(x, y);
+		isPlayer1Turn = result;
+		return result;
+	}
+
 	function placeShip(ship, [x, y]) {
 		if (gameboard.checkValidSpace(ship, [x, y])) {
 			for (let i = y; i < ship.length + y; i++) {
@@ -52,11 +73,12 @@ const Player = () => {
 		}
 	}
 
-	return { gameboard, placeShip, ships };
+	return { gameboard, placeShip, ships, attack };
 };
 
 let player1 = Player();
 let player2 = Player();
 
-// player1.gameboard.placeShip(player1.ship1, [0, 0]);
-player1.placeShip(player1.ships[0], [1, 1]);
+player1.placeShip(player1.ships[3], [4, 3]);
+console.log(player1.gameboard.getBoard());
+console.log(player1.gameboard.attack(4, 7));
